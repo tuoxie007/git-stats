@@ -57,6 +57,10 @@ new Tilda(`${__dirname}/../package.json`, {
           , desc: "Shows a pie chart with the author related contributions in the current repository."
         }
       , {
+            opts: ["c", "codes"]
+          , desc: "Shows line changes calendar in the current repository."
+        }
+      , {
             opts: ["n", "disable-ansi"]
           , desc: "Forces the tool not to use ANSI styles."
         }
@@ -92,6 +96,7 @@ new Tilda(`${__dirname}/../package.json`, {
       , sinceDateOpt = action.options.since
       , untilDateOpt = action.options.until
       , authorsOpt = action.options.authors
+      , codesOpt = action.options.codes
       , noAnsiOpt = action.options.disableAnsi
       , lightOpt = action.options.light
       , dataPathOpt = action.options.data
@@ -112,6 +117,10 @@ new Tilda(`${__dirname}/../package.json`, {
 
     if (GitStats.config.authors) {
         authorsOpt.is_provided = true;
+    }
+
+    if (GitStats.config.codes) {
+        codesOpt.is_provided = true;
     }
 
     if (GitStats.config.global_activity) {
@@ -153,7 +162,7 @@ new Tilda(`${__dirname}/../package.json`, {
     }
 
     // Add the repo path
-    if (authorsOpt.is_provided || globalActivityOpt.is_provided) {
+    if (authorsOpt.is_provided || globalActivityOpt.is_provided || codesOpt.is_provided) {
         options.repo = process.cwd();
     }
 
@@ -163,7 +172,7 @@ new Tilda(`${__dirname}/../package.json`, {
         options.radius = (process.stdout.rows / 2) - 4;
     }
 
-    if (!authorsOpt.is_provided || globalActivityOpt.is_provided) {
+    if (!authorsOpt.is_provided || globalActivityOpt.is_provided || codesOpt.is_provided) {
         // This can be a string or an object
         if (/^object|string$/.test(Typpy(GitStats.config.theme)) && !noAnsiOpt.is_provided && !lightOpt.is_provided) {
             options.theme = GitStats.config.theme;
@@ -189,6 +198,10 @@ new Tilda(`${__dirname}/../package.json`, {
 
     if (globalActivityOpt.is_provided) {
         return GitStats.globalActivity(options, display);
+    }
+
+    if (codesOpt.is_provided) {
+      return GitStats.codes(options, display);
     }
 
     // Show the graphs
